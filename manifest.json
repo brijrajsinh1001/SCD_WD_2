@@ -1,6 +1,6 @@
 {
-  "name": "CHRONO X PRO - Advanced Stopwatch",
-  "short_name": "ChronoX",
+"name": "QuickStop - Advanced Stopwatch",
+"short_name": "QuickStop",
   "description": "Professional stopwatch with lap timing, themes, and PWA support",
   "start_url": "./index.html",
   "display": "standalone",

@@ -1,4 +1,4 @@
-// CHRONO X PRO - Advanced Stopwatch App
+// QuickStop - Advanced Stopwatch App
 // Modern ES6+ implementation with modules pattern
 
 class ChronoXPro {
