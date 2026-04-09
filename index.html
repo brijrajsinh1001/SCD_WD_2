@@ -1,114 +1,66 @@
-
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  .sw-root{min-height:100vh;background:linear-gradient(135deg,#e0f7ff 0%,#f0e6ff 40%,#fff0f9 100%);display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;font-family:'Courier New',monospace;position:relative;overflow:hidden}
-  .sw-root::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(120,200,255,0.35) 0%,transparent 55%),radial-gradient(ellipse at 80% 80%,rgba(200,150,255,0.3) 0%,transparent 55%),radial-gradient(ellipse at 10% 80%,rgba(255,180,220,0.25) 0%,transparent 50%);pointer-events:none}
-  .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(100,160,255,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(100,160,255,0.12) 1px,transparent 1px);background-size:36px 36px;pointer-events:none}
-  .bubble{position:absolute;border-radius:50%;opacity:0.18;pointer-events:none}
-  .sw-title{font-size:clamp(15px,3vw,20px);font-weight:900;color:#6a3fc8;letter-spacing:0.35em;text-transform:uppercase;margin-bottom:1.8rem;position:relative;text-shadow:0 2px 12px rgba(120,80,255,0.18)}
-  .sw-title span{color:#00b4d8}
-  .clock-ring{position:relative;width:280px;height:280px;margin:0 auto 1.8rem}
-  .clock-ring svg{position:absolute;top:0;left:0;width:100%;height:100%}
-  .ring-track{fill:none;stroke:rgba(180,160,255,0.25);stroke-width:10}
-  .ring-progress{fill:none;stroke:url(#ring-grad2);stroke-width:10;stroke-linecap:round;stroke-dasharray:753;stroke-dashoffset:753;transition:stroke-dashoffset 0.1s linear;filter:drop-shadow(0 0 8px rgba(100,160,255,0.5))}
-  .clock-face{position:absolute;inset:18px;border-radius:50%;background:linear-gradient(145deg,#ffffff,#f0f4ff);border:2px solid rgba(160,180,255,0.45);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(120,100,255,0.12),inset 0 2px 8px rgba(255,255,255,0.8)}
-  .time-display{font-size:clamp(34px,8vw,48px);font-weight:900;color:#3a2090;letter-spacing:0.05em;text-shadow:0 2px 16px rgba(100,80,255,0.2);line-height:1}
-  .time-ms{font-size:20px;font-weight:700;color:#7b60d0;letter-spacing:0.1em;margin-top:4px}
-  .status-dot{width:10px;height:10px;border-radius:50%;background:#d0d0e8;margin-top:10px;transition:all 0.3s}
-  .status-dot.running{background:#00cc77;box-shadow:0 0 10px #00cc77}
-  .status-dot.paused{background:#ff9900;box-shadow:0 0 10px #ff9900}
-  .btn-row{display:flex;gap:14px;justify-content:center;margin-bottom:1.8rem;flex-wrap:wrap}
-  .btn{font-size:11px;font-weight:900;letter-spacing:0.18em;text-transform:uppercase;border:none;cursor:pointer;border-radius:40px;padding:14px 26px;transition:all 0.18s;position:relative;box-shadow:0 4px 16px rgba(0,0,0,0.10)}
-  .btn:active{transform:scale(0.95)}
-  .btn-start{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0a5c3a;border:2px solid rgba(0,220,130,0.4);box-shadow:0 4px 18px rgba(50,220,140,0.3)}
-  .btn-start:hover{box-shadow:0 6px 28px rgba(50,220,140,0.5)}
-  .btn-pause{background:linear-gradient(135deg,#ffd200,#ff6f00);color:#5a2800;border:2px solid rgba(255,160,0,0.4);box-shadow:0 4px 18px rgba(255,160,0,0.3)}
-  .btn-pause:hover{box-shadow:0 6px 28px rgba(255,160,0,0.5)}
-  .btn-lap{background:linear-gradient(135deg,#4facfe,#00f2fe);color:#003366;border:2px solid rgba(80,180,255,0.4);box-shadow:0 4px 18px rgba(80,180,255,0.3)}
-  .btn-lap:hover{box-shadow:0 6px 28px rgba(80,180,255,0.5)}
-  .btn-lap:disabled{opacity:0.45;cursor:not-allowed;box-shadow:none}
-  .btn-reset{background:linear-gradient(135deg,#ff6a88,#ff99ac);color:#6a001a;border:2px solid rgba(255,120,150,0.4);box-shadow:0 4px 18px rgba(255,120,150,0.3)}
-  .btn-reset:hover{box-shadow:0 6px 28px rgba(255,120,150,0.5)}
-  .laps-panel{width:100%;max-width:500px;background:rgba(255,255,255,0.75);border:1.5px solid rgba(160,180,255,0.35);border-radius:16px;overflow:hidden;backdrop-filter:blur(8px);box-shadow:0 8px 32px rgba(120,100,255,0.10)}
-  .laps-header{display:flex;justify-content:space-between;padding:10px 20px;border-bottom:1px solid rgba(160,180,255,0.2);font-size:11px;color:#7b60d0;letter-spacing:0.2em;text-transform:uppercase;background:rgba(220,210,255,0.3)}
-  .laps-body{max-height:220px;overflow-y:auto}
-  .laps-body::-webkit-scrollbar{width:4px}
-  .laps-body::-webkit-scrollbar-thumb{background:rgba(160,130,255,0.3);border-radius:2px}
-  .lap-row{display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border-bottom:1px solid rgba(200,210,255,0.25);animation:lap-in 0.3s ease;transition:background 0.2s}
-  .lap-row:hover{background:rgba(200,210,255,0.18)}
-  .lap-row.best{background:rgba(60,230,160,0.10)}
-  .lap-row.worst{background:rgba(255,120,120,0.08)}
-  .lap-num{font-size:12px;color:#8a7ac0;min-width:60px}
-  .lap-split{font-size:13px;color:#5550a0}
-  .lap-total{font-size:13px;color:#2a1a80;font-weight:700}
-  .lap-badge{font-size:9px;padding:2px 8px;border-radius:10px;letter-spacing:0.1em;font-weight:700}
-  .badge-best{background:rgba(0,210,120,0.18);color:#007a45;border:1px solid rgba(0,200,120,0.35)}
-  .badge-worst{background:rgba(255,100,100,0.15);color:#aa2200;border:1px solid rgba(255,100,100,0.3)}
-  .badge-last{background:rgba(80,160,255,0.18);color:#0044aa;border:1px solid rgba(80,160,255,0.3)}
-  .empty-laps{text-align:center;padding:2rem;color:rgba(120,100,200,0.45);font-size:12px;letter-spacing:0.15em}
-  @keyframes lap-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-</style>
-
-<div class="sw-root">
-  <div class="grid-bg"></div>
-  <div class="bubble" style="width:220px;height:220px;top:-60px;left:-60px;background:radial-gradient(circle,#b3e5fc,transparent)"></div>
-  <div class="bubble" style="width:180px;height:180px;bottom:-40px;right:-40px;background:radial-gradient(circle,#e1bee7,transparent)"></div>
-  <div class="bubble" style="width:140px;height:140px;top:40%;left:-30px;background:radial-gradient(circle,#fce4ec,transparent)"></div>
-
-  <div class="sw-title">CHRONO <span>X</span> PRO</div>
-
-  <div class="clock-ring">
-    <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="ring-grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4facfe"/>
-          <stop offset="50%" stop-color="#a78bfa"/>
-          <stop offset="100%" stop-color="#f472b6"/>
-        </linearGradient>
-        <linearGradient id="outer-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#e0f2ff"/>
-          <stop offset="100%" stop-color="#f3e8ff"/>
-        </linearGradient>
-      </defs>
-      <circle cx="140" cy="140" r="138" fill="url(#outer-grad)" opacity="0.5"/>
-      <circle class="ring-track" cx="140" cy="140" r="120"/>
-      <circle class="ring-progress" id="ring" cx="140" cy="140" r="120" transform="rotate(-90 140 140)"/>
-      <g id="tick-marks"></g>
-    </svg>
-    <div class="clock-face">
-      <div class="time-display" id="display">00:00</div>
-      <div class="time-ms" id="display-ms">.000</div>
-      <div class="status-dot" id="status-dot"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickStop - Advanced Stopwatch | Web Development Portfolio</title>
+  <meta name="description" content="Professional grade stopwatch application with lap timing, multiple themes, PWA support, and pixel-perfect animations. Built with vanilla HTML/CSS/JS.">
+  <meta name="theme-color" content="#4facfe">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIgMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzRGQUNGRSIvPgo8Y2lyY2xlIGN4PSIxNiIgY3k9IjExIiByPSI0IiBmaWxsPSIjRkZGIi8+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMjEiIHI9IjgiIGZpbGw9IiNGRkYiIHN0cm9rZT0iIzNFMEZGNUIiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=">
+  <style>
+    /* Critical CSS for above-the-fold */
+    .sw-root { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+  </style>
+</head>
+<body>
+  <main class="sw-root" role="main" aria-label="Stopwatch application">
+<h1 class="sw-title">QUICK<span>STOP</span></h1>
+    
+    <div class="clock-ring" role="timer" aria-live="polite">
+      <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="%234facfe"/>
+            <stop offset="50%" stop-color="%23a78bfa"/>
+            <stop offset="100%" stop-color="%23f472b6"/>
+          </linearGradient>
+          <linearGradient id="outer-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="%23e0f2ff"/>
+            <stop offset="100%" stop-color="%23f3e8ff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="140" cy="140" r="138" fill="url(%23outer-grad)" opacity="0.5"/>
+        <circle class="ring-track" cx="140" cy="140" r="120"/>
+        <circle class="ring-progress" id="ring" cx="140" cy="140" r="120" transform="rotate(-90 140 140)"/>
+        <g id="tick-marks"></g>
+      </svg>
+      <div class="clock-face">
+        <div class="time-display" id="display" aria-label="Current time">00:00</div>
+        <div class="time-ms" id="display-ms">.000</div>
+        <div class="status-dot" id="status-dot" aria-label="Timer status"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="btn-row">
-    <button class="btn btn-start" id="btn-start" onclick="startStop()">START</button>
-    <button class="btn btn-lap" id="btn-lap" onclick="addLap()" disabled>LAP</button>
-    <button class="btn btn-reset" onclick="resetWatch()">RESET</button>
-  </div>
-
-  <div class="laps-panel" id="laps-panel" style="display:none">
-    <div class="laps-header">
-      <span>Lap</span><span>Split</span><span>Total</span><span></span>
+    <div class="btn-row" role="group" aria-label="Timer controls">
+      <button class="btn btn-start" id="btn-start" aria-label="Start or pause timer">START</button>
+      <button class="btn btn-lap" id="btn-lap" disabled aria-label="Record lap (only when running)">LAP</button>
+      <button class="btn btn-reset" aria-label="Reset timer">RESET</button>
     </div>
-    <div class="laps-body" id="laps-body">
-      <div class="empty-laps" id="laps-empty">NO LAPS RECORDED</div>
-    </div>
-  </div>
-</div>
 
-<script>
-let startTime=0,elapsed=0,lapStart=0,laps=[],running=false,raf=null;
-function fmt(ms){let s=Math.floor(ms/1000)%60,m=Math.floor(ms/60000)%60,h=Math.floor(ms/3600000);if(h>0)return(h<10?'0'+h:h)+':'+(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);return(m<10?'0'+m:m)+':'+(s<10?'0'+s:s)}
-function fmtMs(ms){return'.'+(ms%1000).toString().padStart(3,'0')}
-function fmtFull(ms){return fmt(ms)+fmtMs(ms)}
-function updateRing(ms){const pct=(ms/1000%60)/60;document.getElementById('ring').style.strokeDashoffset=753*(1-pct)}
-function buildTicks(){const g=document.getElementById('tick-marks');for(let i=0;i<60;i++){const a=(i/60)*Math.PI*2-Math.PI/2,r1=i%5===0?106:112,r2=119;const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',140+r1*Math.cos(a));line.setAttribute('y1',140+r1*Math.sin(a));line.setAttribute('x2',140+r2*Math.cos(a));line.setAttribute('y2',140+r2*Math.sin(a));line.setAttribute('stroke',i%5===0?'rgba(120,100,220,0.45)':'rgba(160,140,255,0.2)');line.setAttribute('stroke-width',i%5===0?'2.5':'1.2');g.appendChild(line)}}
-function tick(){const ms=elapsed+(Date.now()-startTime);document.getElementById('display').textContent=fmt(ms);document.getElementById('display-ms').textContent=fmtMs(ms);updateRing(ms);raf=requestAnimationFrame(tick)}
-function startStop(){if(!running){startTime=Date.now();running=true;document.getElementById('btn-start').textContent='PAUSE';document.getElementById('btn-start').className='btn btn-pause';document.getElementById('btn-lap').disabled=false;document.getElementById('status-dot').className='status-dot running';if(laps.length===0)lapStart=0;raf=requestAnimationFrame(tick)}else{elapsed+=Date.now()-startTime;running=false;cancelAnimationFrame(raf);document.getElementById('btn-start').textContent='RESUME';document.getElementById('btn-start').className='btn btn-start';document.getElementById('status-dot').className='status-dot paused'}}
-function addLap(){if(!running)return;const total=elapsed+(Date.now()-startTime),split=total-lapStart;lapStart=total;laps.unshift({num:laps.length+1,split,total});renderLaps();document.getElementById('laps-panel').style.display='block'}
-function renderLaps(){const body=document.getElementById('laps-body');if(!laps.length){body.innerHTML='<div class="empty-laps">NO LAPS RECORDED</div>';return}const splits=laps.map(l=>l.split),best=Math.min(...splits),worst=Math.max(...splits);body.innerHTML=laps.map((l,i)=>{let badge=i===0?'<span class="lap-badge badge-last">LAST</span>':'';if(laps.length>2){if(l.split===best)badge='<span class="lap-badge badge-best">BEST</span>';else if(l.split===worst)badge='<span class="lap-badge badge-worst">SLOW</span>'}let cls='lap-row'+(laps.length>2&&l.split===best?' best':laps.length>2&&l.split===worst?' worst':'');return`<div class="${cls}"><span class="lap-num">LAP ${l.num}</span><span class="lap-split">${fmtFull(l.split)}</span><span class="lap-total">${fmtFull(l.total)}</span><span>${badge}</span></div>`}).join('')}
-function resetWatch(){cancelAnimationFrame(raf);running=false;elapsed=0;lapStart=0;laps=[];startTime=0;document.getElementById('display').textContent='00:00';document.getElementById('display-ms').textContent='.000';document.getElementById('ring').style.strokeDashoffset=753;document.getElementById('btn-start').textContent='START';document.getElementById('btn-start').className='btn btn-start';document.getElementById('btn-lap').disabled=true;document.getElementById('status-dot').className='status-dot';document.getElementById('laps-panel').style.display='none';renderLaps()}
-buildTicks();
-</script>
+    <div class="laps-panel" id="laps-panel" role="region" aria-label="Laps list">
+      <div class="laps-header">
+        <span>Lap</span><span>Split</span><span>Total</span><span></span>
+      </div>
+      <div class="laps-body" id="laps-body">
+        <div class="empty-laps" id="laps-empty">NO LAPS RECORDED</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

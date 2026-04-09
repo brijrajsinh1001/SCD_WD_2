@@ -1,0 +1,1 @@
+# QuickStop - Advanced Stopwatch Application
