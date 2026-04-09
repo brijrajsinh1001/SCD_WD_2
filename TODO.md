@@ -1,0 +1,1 @@
+# TODO: Steps to add repo to GitHub&#10;&#10;1. [ ] Initialize Git repo (git init)&#10;2. [ ] Add files (git add .)&#10;3. [ ] Commit (git commit -m "Initial commit")&#10;4. [ ] Create GitHub repo and push (gh repo create SCD_WD_2 --public --source=. --push --remote=origin)&#10;5. [ ] Verify and complete
